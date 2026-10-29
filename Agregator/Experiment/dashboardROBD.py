@@ -5,6 +5,14 @@ import time
 from streamlit_option_menu import option_menu
 from neo4j import GraphDatabase
 
+import os
+
+# Connection settings come from the environment (see .env.example).
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")
+
 # Fungsi ambil data dari MongoDB
 def getDataMongoDB(
     uri,
@@ -139,7 +147,7 @@ def mongodb_page():
 
     st.write("#### Daftar Kolom")
     try:
-        client = MongoClient("mongodb://localhost:27017/")
+        client = MongoClient(MONGO_URI)
         db = client["dbcafe"]
         collection = db["transactionlog"]
         sample_doc = collection.find_one()
@@ -165,7 +173,7 @@ def mongodb_page():
             query = eval(query_input)
 
             df = getDataMongoDB(
-                uri="mongodb://localhost:27017/",
+                uri=MONGO_URI,
                 db_name="dbcafe",
                 collection_name="transactionlog",
                 query_type=query_type,
@@ -183,9 +191,9 @@ def mongodb_page():
 
 # Fungsi untuk page Neo4j
 def neo4j_page():
-    neo4j_uri = "bolt://localhost:7687"
-    neo4j_user = "neo4j"
-    neo4j_password = "jekialacarte"
+    neo4j_uri = NEO4J_URI
+    neo4j_user = NEO4J_USER
+    neo4j_password = NEO4J_PASSWORD
     
     # Query section
     st.write("#### Cypher Query")

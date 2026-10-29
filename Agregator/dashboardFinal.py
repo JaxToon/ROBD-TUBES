@@ -7,6 +7,14 @@ from streamlit_option_menu import option_menu
 from neo4j import GraphDatabase
 import json
 
+import os
+
+# Connection settings come from the environment (see .env.example).
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")
+
 # Fungsi ambil data dari MongoDB
 def getDataMongoDB(
     uri,
@@ -131,7 +139,7 @@ def mongodb_page():
 
     st.write("#### Daftar Kolom")
     try:
-        client = MongoClient("mongodb://localhost:27017/")
+        client = MongoClient(MONGO_URI)
         db = client["dbcafe"]
         collection = db["transactionlog"]
         sample_doc = collection.find_one()
@@ -157,7 +165,7 @@ def mongodb_page():
             query = eval(query_input)
 
             df = getDataMongoDB(
-                uri="mongodb://localhost:27017/",
+                uri=MONGO_URI,
                 db_name="dbcafe",
                 collection_name="transactionlog",
                 query_type=query_type,
@@ -176,9 +184,9 @@ def mongodb_page():
 
 # Fungsi untuk page Neo4j
 def neo4j_page():
-    neo4j_uri = "bolt://localhost:7687"
-    neo4j_user = "neo4j"
-    neo4j_password = "jekialacarte"
+    neo4j_uri = NEO4J_URI
+    neo4j_user = NEO4J_USER
+    neo4j_password = NEO4J_PASSWORD
     
     # Optimization option
     st.write("#### Optimasi Query")
@@ -545,7 +553,7 @@ def combine_page():
                 st.write("### 📊 Hasil MongoDB")
                 with st.spinner("Menjalankan query MongoDB..."):
                     mongo_result = getDataMongoDB(
-                        uri="mongodb://localhost:27017/",
+                        uri=MONGO_URI,
                         db_name="dbcafe",
                         collection_name="transactionlog",
                         query_type="aggregate",
@@ -575,9 +583,9 @@ def combine_page():
                 if neo4j_params or selected_query == "Custom Query":
                     with st.spinner("Menjalankan query Neo4j..."):
                         neo4j_result = getDataNeo4j(
-                            uri="bolt://localhost:7687",
-                            username="neo4j",
-                            password="jekialacarte",
+                            uri=NEO4J_URI,
+                            username=NEO4J_USER,
+                            password=NEO4J_PASSWORD,
                             query=neo4j_query,
                             parameters=neo4j_params,
                             optimized=use_optimization
@@ -767,7 +775,7 @@ def combine_page():
             
             # MongoDB without optimization
             mongo_result_1 = getDataMongoDB(
-                uri="mongodb://localhost:27017/",
+                uri=MONGO_URI,
                 db_name="dbcafe", 
                 collection_name="transactionlog",
                 query_type="aggregate",
@@ -778,9 +786,9 @@ def combine_page():
             
             # Neo4j without optimization
             neo4j_result_1 = getDataNeo4j(
-                uri="bolt://localhost:7687",
-                username="neo4j",
-                password="jekialacarte",
+                uri=NEO4J_URI,
+                username=NEO4J_USER,
+                password=NEO4J_PASSWORD,
                 query=sample_neo4j_query,
                 optimized=False,
                 show_time=False
@@ -795,7 +803,7 @@ def combine_page():
             
             # MongoDB with optimization
             mongo_result_2 = getDataMongoDB(
-                uri="mongodb://localhost:27017/",
+                uri=MONGO_URI,
                 db_name="dbcafe",
                 collection_name="transactionlog", 
                 query_type="aggregate",
@@ -806,9 +814,9 @@ def combine_page():
             
             # Neo4j with optimization
             neo4j_result_2 = getDataNeo4j(
-                uri="bolt://localhost:7687",
-                username="neo4j", 
-                password="jekialacarte",
+                uri=NEO4J_URI,
+                username=NEO4J_USER, 
+                password=NEO4J_PASSWORD,
                 query=sample_neo4j_query + " // with optimization",
                 optimized=True,
                 show_time=False
